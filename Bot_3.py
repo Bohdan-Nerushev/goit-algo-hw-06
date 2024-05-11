@@ -14,9 +14,13 @@ class Name(Field):
 
 class Phone(Field):
     def __init__(self, value):
-        super().__init__(value)
-        # Валідація формату номера телефону
-        self.value = self.value if len(self.value) == 10 else 'Непідходить за довжиною'
+        if len(value) == 10 and value.isdigit():
+            super().__init__(value)
+        else:
+            raise ValueError("Неправильний формат номера телефону")
+
+    def __str__(self):
+        return str(self.value)
 
 class Record:
     def __init__(self, name):
@@ -28,23 +32,27 @@ class Record:
 
     def remove_phone(self, phone):
         for p in self.phones:
-            if str(p) == phone:
+            if p.value == phone:
                 self.phones.remove(p)
                 break
 
     def edit_phone(self, old_phone, new_phone):
+        if not (old_phone.isdigit() and len(old_phone) == 10 and
+                new_phone.isdigit() and len(new_phone) == 10):
+            raise ValueError("Неправильний формат номера телефону")
         for p in self.phones:
-            if str(p) == old_phone:
+            if p.value == old_phone:
                 p.value = new_phone
                 break
 
     def find_phone(self, phone):
         for p in self.phones:
-            if str(p) == phone:
+            if p.value == phone:
                 return p
 
     def __str__(self):
-        return f"Contact name: {self.name}, phones: {', '.join(str(p) for p in self.phones)}"
+        phones = "; ".join(str(p) for p in self.phones)
+        return f"Contact name: {self.name}, phones: {phones}"
 
 class AddressBook(UserDict):
     def add_record(self, record):
